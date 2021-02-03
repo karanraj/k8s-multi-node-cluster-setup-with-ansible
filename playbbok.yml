@@ -1,0 +1,31 @@
+---
+- hosts: master
+  roles:
+  - role: k8s-master
+
+- hosts: slave
+  roles:
+  - role: k8s-slave
+
+- hosts: master
+  tasks:
+  - name: Getting join command
+    shell: "kubeadm token  create --print-join-command"
+    register: join
+
+  - set_fact:
+      shared_variable: "{{ join.stdout }}"
+
+  - add_host:
+      name: "value"
+      shared_variable: "{{ shared_variable }}"
+
+- hosts: slave
+  vars:
+    join_link: "{{ hostvars['value']['shared_variable'] }}"
+  tasks:
+  - name: Joining to master node
+    shell: "{{ join_link }}"
+
+
+
