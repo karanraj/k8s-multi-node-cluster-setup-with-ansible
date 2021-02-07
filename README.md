@@ -1,7 +1,8 @@
 # This is Ansible Automated program for setting up Kubernetes Multi Node Cluster on AWS 
 ## This program will launch and configure
-### 1. One Master Node
-### 2. Two Slave Node(Worker Node)
+### 3. 3 AWS Instances
+### 2. One Master Node
+### 3. Two Slave Node(Worker Node)
 
 **Here I've Created two Role And two playbook**
 * aws_launch.yml *Playbook to Launch One master and two slave node on AWS*
