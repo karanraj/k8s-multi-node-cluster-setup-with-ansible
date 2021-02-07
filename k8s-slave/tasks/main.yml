@@ -1,11 +1,32 @@
 ---
 # tasks file for k8s-slave
-- name: Installing docker and iproute-tc Package
+- name: Installing docker Package
   package:
-    name:
+    name: 
     - docker
     - iproute-tc
     state: present
+
+- name: Starting docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Copying content of the daemon.json file
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+            {
+                "exec-opts": ["native.cgroupdriver=systemd"]
+            }
+  register: out
+
+- name: Restarting docker service
+  service:
+    name: docker
+    state: restarted
+  when: out.changed == true
 
 - name: Configuring Yum repo for k8s
   yum_repository:
@@ -26,30 +47,20 @@
     name: kubeadm
     disable_excludes: kubernetes
 
-- name: Enabling docker and kubelet services
+- name: Enabling docker and kubelet service
   service:
-    name: "{{ item }}"
+    name: kubelet
     state: started
     enabled: yes
-  loop:
-    - kubelet
-    - docker
-
-- name: Copying content of the daemon.json file
-  copy:
-    dest: /etc/docker/daemon.json
-    src: daemon.json
-
-- name: Restarting Docker service
-  service:
-    name: docker
-    state: restarted
 
 - name: Copying k8s.conf file
   copy:
     dest: /etc/sysctl.d/k8s.conf
-    src: k8s.conf
+    content: |
+            net.bridge.bridge-nf-call-ip6tables = 1
+            net.bridge.bridge-nf-call-iptables = 1
+  register: out1
 
 - name: Refreshing sysctl
   shell: "sysctl --system"
-
+  when: out1.changed == true

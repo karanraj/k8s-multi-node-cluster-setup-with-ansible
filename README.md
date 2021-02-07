@@ -1,19 +1,22 @@
-# This is Ansible Automated program for setting up Kubernetes Multi Node Cluster
-### For this you have to launch first AWS instance at least 2
-### 1. Master Node
-### 2. Slave Node(Worker Node)
+# This is Ansible Automated program for setting up Kubernetes Multi Node Cluster on AWS 
+## This program will launch and configure
+### 1. One Master Node
+### 2. Two Slave Node(Worker Node)
 
-**Here I've Created two Role And one playbook**
-* k8s-master *For Configuring Master Node*
-* k8s-slave *For Configuring Slave Node or Worder Node*
-* playbook.yml *To run both roles*
+**Here I've Created two Role And two playbook**
+* aws_launch.yml *Playbook to Launch One master and two slave node on AWS*
+* k8s-master *Role For Configuring Master Node*
+* k8s-slave *Role For Configuring Slave Node or Worder Node*
+* playbook.yml *Playbook To run both roles*
 
-**It Also Contain hosts and ansible.cfs files*
-* hosts *This is a Inventory Which Contains All the hosts*
+**It Contains hosts and ansible.cfg files**
+* hosts *This is a Inventory Which is empty as of now and after launching 3 AWS Instances it will auto create two group containing master and slaves(worker nodes) IP as Managed Host*
 * ansible.cfg *This Contains All The Configuration For Ansible To Run on Remote System*
 
-###### Then update IP's of two instances in hosts file under correct hostgroup
 
 **Now you are good to go**
 
-### Run playbook.yml
+### 1st run the aws_launch.yml to launch instances 
+*Make sure that you have configured aws in your CLI for asw_access_key and aws_secret_key*
+*and must use tag group:master for master instance and group:slave for slave instances*
+### 2nd run the playbook.yml to configure master ans slave(worker node)

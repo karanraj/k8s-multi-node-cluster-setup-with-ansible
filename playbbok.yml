@@ -27,5 +27,8 @@
   - name: Joining to master node
     shell: "{{ join_link }}"
 
-
+- hosts: master
+  tasks:
+  - name: Running Kube Flannel
+    shell: kubectl apply -f /root/kube-flannel.yml 
 

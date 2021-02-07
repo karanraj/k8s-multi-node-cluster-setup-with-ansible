@@ -1,0 +1,66 @@
+- hosts: localhost
+  tasks:
+  - name: "Installing Python package"
+    package:
+       name: "python3"
+
+  - name: "Installing boto3 library"
+    pip:
+       name: "boto3"
+  - name: "Launching Master Instance"
+    ec2_instance:
+       region: "ap-south-1"
+       name: "master"
+       instance_type: "t2.micro"
+       wait: yes
+       wait_timeout: 20
+       key_name: "myfirst2020key"
+       image_id: "ami-08e0ca9924195beba"
+       security_group: "sg-028e2bcfbabdc2edb"
+       state: present
+       vpc_subnet_id: "subnet-e4dca3a8"
+    register: master
+
+  - name: "Launching Slave1 Instance"
+    ec2_instance:
+       region: "ap-south-1"
+       name: "slave1"
+       wait: yes
+       wait_timeout: 20
+       instance_type: "t2.micro"
+       key_name: "myfirst2020key"
+       image_id: "ami-08e0ca9924195beba"
+       security_group: "sg-028e2bcfbabdc2edb"
+       tags:
+          group: slave
+       state: present
+       vpc_subnet_id: "subnet-e4dca3a8"
+    register: slave1
+
+  - name: "Launching Slave2 Instance"
+    ec2_instance:
+       region: "ap-south-1"
+       name: "slave2"
+       tags:
+          group: slave
+       instance_type: "t2.micro"
+       wait: yes
+       wait_timeout: 20
+       key_name: "myfirst2020key"
+       image_id: "ami-08e0ca9924195beba"
+       security_group: "sg-028e2bcfbabdc2edb"
+       state: present
+       vpc_subnet_id: "subnet-e4dca3a8"
+    register: slave2
+
+  - name: Updating inventory 
+    blockinfile:
+       path: /Ansible_WorkStation/AWS/k8s-multi-node-cluster/hosts
+       marker: "# 1st {mark} ANSIBLE MANAGED BLOCK "
+       block: |
+               [{{ master.instances[0].tags.Name }}]
+               {{ master.instances[0].public_ip_address }}
+               [{{ slave1.instances[0].tags.group }}]
+               {{ slave1.instances[0].public_ip_address }}
+               {{ slave2.instances[0].public_ip_address }}
+
